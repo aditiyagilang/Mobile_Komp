@@ -44,7 +44,13 @@ class HomeView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   var data = _homeController.collectionData[index];
                   return ListTile(
-                    title: Text(data['title']),
+                    title: Column(
+                      children: [
+                        Image.network(data['image'], height: 100,),
+                        Text(data['title']),
+                        Text(data['price']),
+                      ],
+                    ),
                     subtitle: Text(data['description']),
                   );
                 },
@@ -65,8 +71,7 @@ class HomeView extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         onPressed: () async {
-                          String imageUrl =
-                              await _homeController.uploadAndDisplayImage();
+                          await _homeController.uploadAndDisplayImage();
                           setState(() {});
                         },
                         child: Text("Pilih Gambar"),
@@ -92,20 +97,17 @@ class HomeView extends StatelessWidget {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    print("object");
                     _homeController.addDataToFirestore(
                       _homeController.titleController.text,
                       _homeController.priceController.text,
                       _homeController.descriptionController.text,
                     );
-
-                  
+                    Get.back();
                   },
                   child: Text("Tambah"),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _homeController.clearControllers();
                     Get.back();
                   },
                   child: Text("Batal"),

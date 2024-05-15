@@ -45,60 +45,60 @@ class HomeController extends GetxController {
       isLoading.value = false;
     }
   }
-Future uploadAndDisplayImage() async {
-  final picker = ImagePicker();
-  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  if (pickedFile != null) {
-    try {
-      File imageFile = File(pickedFile.path);
-      final path = "files/" +
-          DateTime.now().millisecondsSinceEpoch.toString() +
-          ".jpg";
-      final ref = FirebaseStorage.instance.ref().child(path);
+  Future<void> uploadAndDisplayImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-      await ref.putFile(imageFile);
+    if (pickedFile != null) {
+      try {
+        File imageFile = File(pickedFile.path);
+        final path = "files/" +
+            DateTime.now().millisecondsSinceEpoch.toString() +
+            ".jpg";
+        final ref = FirebaseStorage.instance.ref().child(path);
 
-      String downloadUrl = await ref.getDownloadURL();
+        await ref.putFile(imageFile);
 
-      
-      _imageUrl = Uri.parse(downloadUrl);
+        String downloadUrl = await ref.getDownloadURL();
 
-      Get.snackbar(
-        'Upload Berhasil',
-        'Gambar berhasil diupload',
-        backgroundColor: const Color.fromARGB(255, 245, 95, 145),
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+        _imageUrl =
+            Uri.parse(downloadUrl); // Simpan URL gambar ke dalam _imageUrl
 
-      return downloadUrl;
-    } catch (e) {
-      print('Error uploading image: $e');
-      Get.snackbar(
-        'Error',
-        'Terjadi kesalahan saat mengunggah gambar',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return null;
+        Get.snackbar(
+          'Upload Berhasil',
+          'Gambar berhasil diupload',
+          backgroundColor: const Color.fromARGB(255, 245, 95, 145),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } catch (e) {
+        print('Error uploading image: $e');
+        Get.snackbar(
+          'Error',
+          'Terjadi kesalahan saat mengunggah gambar',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } else {
+      print('No image selected.');
     }
-  } else {
-    print('No image selected.');
-    return null;
   }
-}
 
   Future<void> addDataToFirestore(
       String title, String price, String description) async {
-    print("aaaaaaaaaaa");
     try {
+      // Unggah gambar terlebih dahulu
+      await uploadAndDisplayImage();
+
+      // Tambahkan data ke Firestore setelah mendapatkan URL gambar
       await _firestore.collection('koleksi').add({
         'title': title,
         'price': price,
         'description': description,
-        'image': "asadada",
+        'image': _imageUrl.toString(), // Gunakan URL gambar dari _imageUrl
       });
 
       fetchData();
@@ -107,6 +107,9 @@ Future uploadAndDisplayImage() async {
         'Data added successfully',
         snackPosition: SnackPosition.BOTTOM,
       );
+
+      // Membersihkan controller setelah data ditambahkan
+      clearControllers();
     } catch (e) {
       print(e);
       Get.snackbar(
