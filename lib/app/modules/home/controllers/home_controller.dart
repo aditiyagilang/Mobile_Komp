@@ -63,7 +63,7 @@ class HomeController extends GetxController {
         String downloadUrl = await ref.getDownloadURL();
 
         _imageUrl =
-            Uri.parse(downloadUrl); // Simpan URL gambar ke dalam _imageUrl
+            Uri.parse(downloadUrl); 
 
         Get.snackbar(
           'Upload Berhasil',
@@ -90,15 +90,14 @@ class HomeController extends GetxController {
   Future<void> addDataToFirestore(
       String title, String price, String description) async {
     try {
-      // Unggah gambar terlebih dahulu
+  
       await uploadAndDisplayImage();
 
-      // Tambahkan data ke Firestore setelah mendapatkan URL gambar
       await _firestore.collection('koleksi').add({
         'title': title,
         'price': price,
         'description': description,
-        'image': _imageUrl.toString(), // Gunakan URL gambar dari _imageUrl
+        'image': _imageUrl.toString(), 
       });
 
       fetchData();
@@ -108,13 +107,32 @@ class HomeController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      // Membersihkan controller setelah data ditambahkan
+     
       clearControllers();
     } catch (e) {
       print(e);
       Get.snackbar(
         'Error',
         'Failed to add data: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> deleteData(String id) async {
+    try {
+      await _firestore.collection('koleksi').doc(id).delete();
+      fetchData(); 
+      Get.snackbar(
+        'Success',
+        'Data deleted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      print(e);
+      Get.snackbar(
+        'Error',
+        'Failed to delete data: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
     }

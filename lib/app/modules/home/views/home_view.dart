@@ -43,16 +43,64 @@ class HomeView extends StatelessWidget {
                 itemCount: _homeController.collectionData.length,
                 itemBuilder: (context, index) {
                   var data = _homeController.collectionData[index];
-                  return ListTile(
-                    title: Column(
-                      children: [
-                        Image.network(data['image'], height: 100,),
-                        Text(data['title']),
-                        Text(data['price']),
-                      ],
-                    ),
-                    subtitle: Text(data['description']),
-                  );
+                 return InkWell(
+  onTap: () {
+
+    var clickedData = _homeController.collectionData[index];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(clickedData['title']),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(
+                clickedData['image'],
+                height: 100,
+              ),
+              Text(clickedData['price']),
+              Text(clickedData['description']),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Tambahkan logika untuk menghapus data
+                // Misalnya:
+                _homeController.deleteData(clickedData['id']);
+                Get.back();
+              },
+              child: Text('Delete'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Tambahkan logika untuk tombol close
+                Get.back();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  },
+  child: ListTile(
+    title: Column(
+      children: [
+        Image.network(
+          data['image'],
+          height: 100,
+        ),
+        Text(data['title']),
+        Text(data['price']),
+      ],
+    ),
+    subtitle: Text(data['description']),
+  ),
+);
+
                 },
               );
             }
